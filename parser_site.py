@@ -2,10 +2,17 @@ from config import DRIVERPATH, URL
 from selenium import webdriver
 from db import find_all_search, process_product
 
+import os
+
 
 class ParseProducts:
     def __init__(self, url, bot=None):
-        self.driver = webdriver.Chrome(executable_path=DRIVERPATH)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--no-sandbox")
+        self.driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
         self.driver.minimize_window()
         self.url = url
         self.bot = bot
