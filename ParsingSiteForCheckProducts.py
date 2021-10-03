@@ -3,9 +3,10 @@ import asyncio
 import random
 from aiogram import Bot, Dispatcher, executor, utils, types
 from aiogram.types import ParseMode
-from config import TOKEN, URL
-from db import process_search_model, init_db, find_id_search, find_all_products
+from config import TOKEN, URL, URLDNS
+from db import process_search_model, init_db, find_id_search, find_all_products, delete_products_by_id
 from parser_site import ParseProducts
+from parser_site import ParseProductsDns
 
 
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +32,11 @@ async def send_search(message: types.Message):
     for search_model in search_models:    
         await message.answer(text=search_model.title)
 
+@dp.message_handler(commands='clear')
+async def send_clear_db(message: types.Message):
+    message_text = delete_products_by_id(message.chat.id)
+    await message.answer(text=message_text)
+
 @dp.message_handler()
 async def echo(message: types.Message):    
     await process_search_model(message)
@@ -44,6 +50,8 @@ async def scheduled(wait_for, parser):
 if __name__ == '__main__':
     init_db()
     parser = ParseProducts(url=URL, bot=bot)
+    parserDns = ParseProductsDns(url=URLDNS, bot=bot)
     loop = asyncio.get_event_loop()
-    loop.create_task(scheduled(random.randint(30,40), parser))
+    loop.create_task(scheduled(random.randint(30,50), parser))
+    loop.create_task(scheduled(random.randint(30,50), parserDns))
     executor.start_polling(dp, skip_updates=True)

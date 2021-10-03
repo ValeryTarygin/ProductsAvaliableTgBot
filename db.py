@@ -12,6 +12,7 @@ class BaseModel(Model):
 class Products(BaseModel):
     title = CharField()
     url = TextField()
+    chatid = CharField()
 
 
 class SearchModel(BaseModel):
@@ -30,6 +31,12 @@ def find_id_search(chat_id):
 def find_all_search():
     return SearchModel.select()
 
+def delete_products_by_id(chat_id):
+    try:
+        Products.delete().where(Products.chatid == chat_id).execute()
+        return 'Данные удалены'
+    except DoesNotExist as de:
+        return 'Нет данных для удаления'
 
 async def process_search_model(message):
     search_exist = True
@@ -54,11 +61,11 @@ async def process_product(title, url, chat_id, bot):
     product_exist = True
     try:
         product = Products.select().where(Products.title == title).get()
-    except DoesNotExist as de:
+    except:
         product_exist = False
 
     if not product_exist:
-        rec = Products(title=title, url=url)
+        rec = Products(title=title, url=url, chatid=chat_id)
         rec.save()
         message_text = utils.markdown.hlink(title, url)
         await bot.send_message(chat_id=chat_id, text=message_text, parse_mode=ParseMode.HTML)
