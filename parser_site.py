@@ -28,9 +28,9 @@ class ParseProducts:
 
             products = self.driver.find_elements_by_class_name("catalog-item-in")
             for product in products:
-                text_for_analysis = product.text
+                text_for_analysis = product.text.lower()
                 for search_model in search_models:
-                     if text_for_analysis.find(search_model.title) >= 0 and (text_for_analysis.find('Купить') >= 0 or text_for_analysis.find('Оформить заказ') >= 0):
+                     if text_for_analysis.find(search_model.title.lower()) >= 0 and (text_for_analysis.find('купить') >= 0 or text_for_analysis.find('оформить') >= 0):
                         try: 
                             product_for_get_id = product.find_element_by_css_selector('.compare-item.compare-item--list.hidden-mv')
                             id = product_for_get_id.get_attribute('data-product-id')
@@ -66,11 +66,11 @@ class ParseProductsDns:
             try:
                 products = self.driver.find_elements_by_css_selector(".hype-landing-products__item.hype-landing-products__item")
                 for product in products:
-                    text_for_analysis = product.text
+                    text_for_analysis = product.text.lower()
                     class_with_href = product.find_element_by_css_selector('.hype-landing-products__item-title');
                     product_href = class_with_href.get_attribute('href')
                     for search_model in search_models:
-                        if text_for_analysis.find(search_model.title) >= 0:
+                        if text_for_analysis.find(search_model.title.lower()) >= 0:
                              await process_product(text_for_analysis, product_href, search_model.chatid, self.bot)  
             except:
                 continue         
