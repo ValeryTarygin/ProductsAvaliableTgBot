@@ -29,8 +29,11 @@ async def send_list(message: types.Message):
 @dp.message_handler(commands='search')
 async def send_search(message: types.Message):
     search_models = find_id_search(message.chat.id)
-    for search_model in search_models:    
-        await message.answer(text=search_model.title)
+    if search_models.count() == 0:
+        await message.answer(text='слова поиска отсутствуют')
+    else:
+        for search_model in search_models:    
+            await message.answer(text=search_model.title)
 
 @dp.message_handler(commands='clear')
 async def send_clear_db(message: types.Message):
@@ -39,8 +42,8 @@ async def send_clear_db(message: types.Message):
 
 @dp.message_handler(commands='help')
 async def send_help(message: types.Message):
-    message_text = 'Поиск продукта по ключевым словам. Введенное слово добавляется в список искомых, повторный ввод слова удаляет его из списка. \
-    Все команды: \n \
+    message_text = 'Поиск продукта по ключевым словам. Введенное слово добавляется в список искомых, повторный ввод слова удаляет его из списка.\n\
+    Все команды:\n\
     /search - слова поиска; \n\
     /list - список найденных товаров; \n\
     /clear - очистка базы данных с товарами; \n\
@@ -50,13 +53,12 @@ async def send_help(message: types.Message):
 
 @dp.message_handler(commands='sites')
 async def send_list_sites(message: types.Message):
-    message_text = 'SONY: {} \n DNS: {}'.format(MAP_URL['SONY'], MAP_URL['DNS'])
+    message_text = 'SONY: {}\nDNS: {}'.format(MAP_URL['SONY'], MAP_URL['DNS'])
     await message.answer(text=message_text)
 
 @dp.message_handler()
 async def echo(message: types.Message):    
     await process_search_model(message)
-
 
 async def scheduled(wait_for, parser):
     while True:
