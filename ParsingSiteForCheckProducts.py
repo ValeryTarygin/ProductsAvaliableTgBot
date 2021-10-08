@@ -3,7 +3,7 @@ import asyncio
 import random
 from aiogram import Bot, Dispatcher, executor, utils, types
 from aiogram.types import ParseMode
-from config import TOKEN, URL, URLDNS
+from config import TOKEN, MAP_URL
 from db import process_search_model, init_db, find_id_search, find_all_products, delete_products_by_id
 from parser_site import ParseProducts
 from parser_site import ParseProductsDns
@@ -37,6 +37,22 @@ async def send_clear_db(message: types.Message):
     message_text = delete_products_by_id(message.chat.id)
     await message.answer(text=message_text)
 
+@dp.message_handler(commands='help')
+async def send_help(message: types.Message):
+    message_text = 'Поиск продукта по ключевым словам. Введенное слово добавляется в список искомых, повторный ввод слова удаляет его из списка. \
+    Все команды: \n \
+    /search - слова поиска; \n\
+    /list - список найденных товаров; \n\
+    /clear - очистка базы данных с товарами; \n\
+    /sites - список сайтов'
+
+    await message.answer(text=message_text)
+
+@dp.message_handler(commands='sites')
+async def send_list_sites(message: types.Message):
+    message_text = 'SONY: {} \n DNS: {}'.format(MAP_URL['SONY'], MAP_URL['DNS'])
+    await message.answer(text=message_text)
+
 @dp.message_handler()
 async def echo(message: types.Message):    
     await process_search_model(message)
@@ -49,8 +65,8 @@ async def scheduled(wait_for, parser):
 
 if __name__ == '__main__':
     init_db()
-    parser = ParseProducts(url=URL, bot=bot)
-    parserDns = ParseProductsDns(url=URLDNS, bot=bot)
+    parser = ParseProducts(url=MAP_URL["SONY"], bot=bot)
+    parserDns = ParseProductsDns(url=MAP_URL["DNS"], bot=bot)
     loop = asyncio.get_event_loop()
     loop.create_task(scheduled(random.randint(30,50), parser))
     loop.create_task(scheduled(random.randint(30,50), parserDns))
